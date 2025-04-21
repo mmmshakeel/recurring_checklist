@@ -146,6 +146,22 @@ class ChecklistProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteItem(String checklistId, String itemId) async {
+    final checklistIndex = _checklists.indexWhere((c) => c.id == checklistId);
+    if (checklistIndex == -1) return;
+
+    _checklists[checklistIndex].items.removeWhere((item) => item.id == itemId);
+
+    try {
+      final box = await Hive.openBox<Checklist>(_checklistBoxName);
+      await box.put(_checklists[checklistIndex].id, _checklists[checklistIndex]);
+    } catch (e) {
+      // Handle error
+    }
+
+    notifyListeners();
+  }
+
   void toggleTheme() {
     _isDarkMode = !_isDarkMode;
     notifyListeners();
